@@ -8,7 +8,7 @@ class Redlab:
     STALL_ON_OVERRUN        = 0x0
     INHIBIT_STALL           = 0x1 << 7
     
-    def __init__(self, channels=1, frequency=10240, nSamples=1024, options=0b10000000, nFreq = 50):
+    def __init__(self, channels=1, frequency=10240, nSamples=1024, options=0b10000000, nFreq = 50, trigger = 1):
         '''
         channels: number of channels or list of channels
         frequency: sampling frequency
@@ -28,17 +28,18 @@ class Redlab:
         self.frequency = frequency
         self.options = options
         self.nFreq = nFreq
+        self.trigger = trigger
 
         self.set_num_channels(channels)
         self.setup_scan()
         
-    def setup_scan(self, trigger=1):
+    def setup_scan(self):
         '''
         Setup the RedLab Continuous Analog Input Scan.
         '''
         self.device.AInScanStop()
         self.device.AInScanClearFIFO()
-        self.device.AInScanStart(self.nSamples, self.frequency, self.channel_mask, self.options, trigger, 0)
+        self.device.AInScanStart(self.nSamples, self.frequency, self.channel_mask, self.options, self.trigger, 0)
            
     def set_num_channels(self, channels):
         '''
