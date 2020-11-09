@@ -8,7 +8,7 @@ class Redlab:
     STALL_ON_OVERRUN        = 0x0
     INHIBIT_STALL           = 0x1 << 7
     
-    def __init__(self, channels=1, frequency=10240, nSamples=1024, options=0b10000000, nFreq = 50, trigger = 1):
+    def __init__(self, channels=1, frequency=10000, nSamples=1600, options=0b10000000, nFreq = 50, trigger = 1):
         '''
         channels: number of channels or list of channels
         frequency: sampling frequency
@@ -98,11 +98,21 @@ class Redlab:
 
 if __name__ == "__main__":
     from pprint import pprint
-    redlab = Redlab(channels=2)
+    redlab = Redlab(channels=[1])
     time.sleep(0.1)
-    data = redlab.read()
+
+    for j in range(5):
+        data = redlab.read()
+        d = data['channels'][1]['volts']
+        for i in range(1, len(d)):
+            if abs(d[i]-d[i-1]) > 0.1:
+                print("Leakage? Pacchetto perso?", i)
+        print(j)
+    
+
+
     pprint(data, depth=3)
-    #pprint(data['channels'][1])
+    pprint(data['channels'][1]['volts'][:220])
 
 
     pass

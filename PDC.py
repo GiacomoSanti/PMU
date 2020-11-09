@@ -1,4 +1,5 @@
 from synchrophasor.pdc import Pdc
+import numpy as np
 
 pdc = Pdc(pdc_id=7, pmu_ip="127.0.0.1", pmu_port=1411)
 
@@ -9,9 +10,23 @@ config = pdc.get_config()  # Get configuration from PMU
 
 pdc.start()  # Request to start sending measurements
 
+def get_degrees(phasors):
+    degrees = []
+
+    for p in phasors:
+        d = p[1]*180/np.pi
+        if d < 0:
+            d += 360
+        degrees.append(d)
+    return degrees
+
 while True:
     data = pdc.get()  # Keep receiving data
-    print('Received: ', data.get_phasors(), 'Time: ', data.get_soc())
+    phasors = data.get_phasors()
+    degrees = get_degrees(phasors)
+
+
+    print('Received: ', data.get_phasors(), '   ', degrees, 'Time: ', data.get_soc())
     if not data:
         pdc.quit()  # Close connection
         break

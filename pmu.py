@@ -108,25 +108,37 @@ def test(x):
     }
     return scan
 
+def get_degrees(phasors):
+    degrees = []
+
+    for p in phasors:
+        d = p[1]*180/np.pi
+        if d < 0:
+            d += 360
+        degrees.append(d)
+    return degrees
+
 def make_callback(redlab, myPmu):
     def callback(arg):
         T = time.time()
         scan = redlab.read()
-        scan = test(int(T)%10+1)  #for testing with no input available
+        #scan = test(int(T)%10+1)  #for testing with no input available
 
         scan['timestamp'] = round(T)
         sph = estimate_phasors(scan)
 
+
         myPmu.send(redlab, sph, scan['timestamp'])
-        print('Received: ', myPmu.current_dataframe.get_phasors(), 'Time: ',myPmu.current_dataframe.get_soc())
+        degrees = get_degrees(myPmu.current_dataframe.get_phasors())
+        print('Sent: ', myPmu.current_dataframe.get_phasors(), '   ', degrees, 'Time: ',myPmu.current_dataframe.get_soc())
 
     return callback
 
 
 
 if __name__ == "__main__":
-    r = Redlab(8, 10240, 1024)
-    myPmu = MyPmu(["VA", "VB", "VC", "VD", "VE", "VF", "VG", "VH"])
+    r = Redlab([1], 10000, 1600)
+    myPmu = MyPmu(["VA"])
 
     gpio.setmode(gpio.BCM)
     gpio.setup(18, gpio.IN, pull_up_down=gpio.PUD_DOWN)

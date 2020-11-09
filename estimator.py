@@ -2,6 +2,7 @@ import numpy as np
 import math
 from random import random
 from pprint import pprint
+from redlab import *
 
 def zero_crossing_indexes(samples):
     '''
@@ -14,6 +15,7 @@ def zero_crossing_indexes(samples):
     
     for i, current in enumerate(samples):
         if current < 0 and last >= 0:
+        #if current > 0 and last <= 0:
             zeroIndexes.append(i)
         last = current
 
@@ -59,9 +61,15 @@ def get_average_frequency(periods):
     else:
         print('Impossibile frequenza media: nessun periodo trovato')
 
-def windowed_fft(samples, zero_crossing_indexes, Ts, offset_a, offset_b, n_freq, nSamples):
+def windowed_fft(samples, zero_crossing_indexes, s_freq, offset_a, offset_b, n_freq, nSamples):
 
-    window = samples[zero_crossing_indexes[0]-1 : zero_crossing_indexes[-1]]
+    #window = samples[zero_crossing_indexes[0]-1 : zero_crossing_indexes[-1]]
+    Ts = 1/s_freq
+
+    window_length = 6*int(s_freq/n_freq)
+    window_start = zero_crossing_indexes[0]-1
+    window_end = window_length + window_start
+    window = samples[ window_start: window_end]
 
     frequencies = np.fft.fftfreq(len(window), d=Ts)
     phasors = np.fft.fft(window)
@@ -81,6 +89,11 @@ def estimate_phasors(scan):
     for chan in scan['channels']:
         samples = scan['channels'][chan]
         zc_indexes = zero_crossing_indexes(samples['volts'])
+
+        if len(zc_indexes) < 2:
+            print('Not enough zero crossings found in channel ', chan)
+            continue
+
         zc_times = zero_crossing_times(samples['volts'], scan['frequency'], zc_indexes)
         
         periods = get_periods(zc_times)
@@ -92,7 +105,7 @@ def estimate_phasors(scan):
         Ts = 1/scan['frequency']
         offset_a, offset_b = zero_cross_offset(s1, s2, Ts)
 
-        phasors, frequencies, imax = windowed_fft(samples['volts'], zc_indexes, Ts, offset_a, offset_b, scan['nFreq'], scan['samples'])
+        phasors, frequencies, imax = windowed_fft(samples['volts'], zc_indexes, scan['frequency'], offset_a, offset_b, scan['nFreq'], scan['samples'])
 
         p = phasors[imax]
 
@@ -100,7 +113,7 @@ def estimate_phasors(scan):
             'rocof': rocof,
             'avg_freq': avg_freq,
             'amplitude': 2*np.abs(p)/len(phasors),
-            'phase_deg' : np.angle(p, True),
+            'phase_deg' : (np.angle(p, True) + 360) % 360,
             'phase' : np.angle(p, False),
             'fft_freq' : frequencies[imax],
             'phasor' : p
@@ -125,6 +138,7 @@ def fake_cos(frequency, phase, sampleFrequency=10240, nSamples=1024, A=3):
 
 
 if __name__ == "__main__":
+    '''
     fake_scan = {
         'frequency': 10240, 
         'samples': 1024, 
@@ -152,9 +166,18 @@ if __name__ == "__main__":
                 'volts': fake_cos(49.99, np.pi/4)
             },
             8: {
-                'volts': fake_cos(50.05, np.pi/3)
+                'volts': fake_cos(50.05, -np.pi/3)
             }
         }
     }
+    '''
+    redlab = Redlab(channels=[1])
+    
+    
+    t = time.time()
+    data = redlab.read()
+    data = redlab.read()
 
-    pprint(estimate_phasors(fake_scan))
+    
+    print("Read time: ", time.time() - t)
+    pprint(estimate_phasors(data))
