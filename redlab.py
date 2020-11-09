@@ -80,8 +80,8 @@ class Redlab:
 
 
         for scan in range(self.nSamples):
-            for chan in self.channels:
-                ii = scan * len(self.channels) + chan
+            for i, chan in enumerate(self.channels):
+                ii = scan * len(self.channels) + i
                 data[chan]['rawData'].append(raw_data[ii])
                 data[chan]['data'].append(raw_data[ii]*self.device.table_AIn[chan].slope + self.device.table_AIn[chan].intercept)
 
@@ -97,11 +97,11 @@ class Redlab:
 
 if __name__ == "__main__":
     from pprint import pprint
-    redlab = Redlab(8)
-    time.sleep(0.3)
-    
-    t = time.time()
+    redlab = Redlab(channels=2)
+    time.sleep(0.1)
     data = redlab.read()
-    pprint(data['channels'][0]['volts'][:20])
-    print("Read time: ", time.time() - t)
+    pprint(data, depth=3)
+    #pprint(data['channels'][1])
+
+
     pass
