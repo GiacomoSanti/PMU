@@ -1,0 +1,12 @@
+[Unit]
+Description=Daemon for the pmu server
+
+[Service]
+ExecStart=/usr/bin/python3 -u /home/pi/Desktop/PMU/pmu.py
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target
