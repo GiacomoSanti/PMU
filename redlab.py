@@ -63,7 +63,8 @@ class Redlab:
         else:
             raise ValueError("Channels must be an int or a list")
 
-                    
+        self.channels.sort()
+
         self.channel_mask = 0   #sets the mask for the channels. es. channel 1,2,3 -> 01110000
         for i in self.channels:
             self.channel_mask |= (0x1 << i)
@@ -108,7 +109,7 @@ class Redlab:
 
 if __name__ == "__main__":
     from pprint import pprint
-    redlab = Redlab(channels=[1,2,3])
+    redlab = Redlab(channels=[2,3,4])
     time.sleep(1)
     data = redlab.read()
     pprint(data, depth=3)

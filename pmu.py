@@ -44,6 +44,8 @@ class MyPmu:
 
         self.hf = HeaderFrame(7,  # PMU_ID
                         "Hello I'm MyPMU!")  # Header Message
+        
+        self.current_dataframe = None
 
         self.pmu.set_configuration(self.cfg)
         self.pmu.set_header(self.hf)
@@ -67,9 +69,16 @@ class MyPmu:
         freq_dev = []
         for chan in synchrophasors: #for every chan is given a synchrophasor
             sph.append((synchrophasors[chan]['amplitude'], synchrophasors[chan]['phase']))
-            rocof.append(synchrophasors[chan]['rocof']) #1 rocof for the whole datagram, the first is given
-            freq_dev.append(abs(self.nFreq-synchrophasors[chan]['avg_freq']))# average frequency deviation from nominal
 
+            if abs(self.nFreq-synchrophasors[chan]['avg_freq']) > 32.767:
+                rocof.append(0)
+            else:
+                rocof.append(synchrophasors[chan]['rocof']) #1 rocof for the whole datagram, the first is given
+                freq_dev.append(abs(self.nFreq-synchrophasors[chan]['avg_freq']))# average frequency deviation from nominal
+       
+        if len(freq_dev) == 0:
+            freq_dev.append(0)
+        
         self.current_dataframe = DataFrame(7,  # PMU_ID
             ("ok", True, "timestamp", False, False, False, 0, "<10", 0),  # STAT WORD - Check DataFrame set_stat()
             sph,  # PHASORS
@@ -79,6 +88,7 @@ class MyPmu:
             [],  # Digital status word
             self.cfg,  # Data Stream Configuration
             soc=soc)  
+            
     
     def send(self, redlab, sph, timestamp):
         '''
@@ -123,15 +133,15 @@ def make_callback(redlab, myPmu):
         scan['timestamp'] = round(T)
         sph = estimate_phasors(scan)
         myPmu.send(redlab, sph, scan['timestamp'])
-        print('Sent: ', myPmu.current_dataframe.get_phasors(), '   ', get_degrees(myPmu.current_dataframe.get_phasors()), '   ', datetime.fromtimestamp(round(T)))
-
+        if myPmu.current_dataframe:
+            print('Sent: ', myPmu.current_dataframe.get_phasors(), '   ', get_degrees(myPmu.current_dataframe.get_phasors()), '   ', datetime.fromtimestamp(round(T)))
     return callback
 
 
 
 if __name__ == "__main__":
     
-    r = Redlab([1,2,3], 10000, 1600)
+    r = Redlab([2,3,4], 10000, 1600)
     myPmu = MyPmu(["VA","VB","VC"])
 
     #GPIO lib is used to attach the 18th pin of the raspberry

@@ -4,6 +4,9 @@ from random import random
 from pprint import pprint
 from redlab import *
 
+
+NOISE_THRESHOLD = 0.05
+
 def zero_crossing_indexes(samples):
     '''
     samples = list of samples 
@@ -124,6 +127,15 @@ def estimate_phasors(scan):
 
         if len(zc_indexes) < 2:
             print('Not enough zero crossings found in channel ', chan)
+            result[chan] = {    #Step 6: Dictionary filling
+                'rocof': 0,
+                'avg_freq': 0,
+                'amplitude': 0,
+                'phase_deg' : 0,
+                'phase' : 0,
+                'fft_freq' : 0,
+                'phasor' : (0,0)
+            }
             continue
 
         zc_times = zero_crossing_times(samples['volts'], scan['frequency'], zc_indexes) #Step 2: times
@@ -147,15 +159,26 @@ def estimate_phasors(scan):
 
         p = phasors[imax]
 
-        result[chan] = {    #Step 6: Dictionary filling
-            'rocof': rocof,
-            'avg_freq': avg_freq,
-            'amplitude': 2*np.abs(p)/len(phasors),
-            'phase_deg' : (np.angle(p, True) + 360) % 360,
-            'phase' : np.angle(p, False),
-            'fft_freq' : frequencies[imax],
-            'phasor' : p
-        }
+        if 2*np.abs(p)/len(phasors) < NOISE_THRESHOLD: #Noise treshold
+            result[chan] = {    #Step 6: Dictionary filling
+                'rocof': 0,
+                'avg_freq': 0,
+                'amplitude': 0,
+                'phase_deg' : 0,
+                'phase' : 0,
+                'fft_freq' : 0,
+                'phasor' : (0,0)
+            }
+        else:
+            result[chan] = {    #Step 6: Dictionary filling
+                'rocof': rocof,
+                'avg_freq': avg_freq,
+                'amplitude': 2*np.abs(p)/len(phasors),
+                'phase_deg' : (np.angle(p, True) + 360) % 360,
+                'phase' : np.angle(p, False),
+                'fft_freq' : frequencies[imax],
+                'phasor' : p
+            }
         
     return result
 
@@ -218,7 +241,7 @@ def fake_scan(sFreq, samples, nFreq):
 
 
 if __name__ == "__main__":
-    redlab = Redlab(channels=[1,2,3])
+    redlab = Redlab(channels=[2,3,4])
     
     
     t = time.time()
