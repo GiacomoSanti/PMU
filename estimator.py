@@ -83,9 +83,10 @@ def windowed_fft(samples, zero_crossing_indexes, s_freq, offset_a, offset_b, a_f
     Returns the array of phasors, the array of the frequencies corrisponding to the phasors calculated, and the index of the fondamental.
     '''    
     Ts = 1/s_freq
-    p = 6 #number of periods taken, must not exceed the window lenght
+    samples_per_period = int(s_freq/a_freq) # for best results s_freq and a_freq should be multiples
+    periods_taken = (zero_crossing_indexes[-1] - (zero_crossing_indexes[0]-1))//samples_per_period  #number of periods taken
 
-    window_length = p*int(s_freq/a_freq) #The window length is calculated approximating SamplingFrequency/AverageFrequency.
+    window_length = periods_taken*samples_per_period #The window length is maximum multiple of the period
     window_start = zero_crossing_indexes[0]-1
     window_end = window_length + window_start
     window = samples[ window_start: window_end]
