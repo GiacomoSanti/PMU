@@ -103,13 +103,15 @@ def windowed_fft(samples, zero_crossing_indexes, s_freq, offset_a, offset_b, a_f
 
 def estimate_phasors(scan):
     '''
-    Returns a dictionary containing al the channels' estimated fondamental phasor( complex number 
-                                                                + amplitude 
-                                                                + phase_in_rad 
-                                                                + phase_in_degrees)
-                                                                + fft frequency, 
-                                                                + average frequency 
-                                                                + rocof)
+    Returns a dictionary containing al the channels' estimated fondamental phasor
+
+        ( complex number 
+        + amplitude 
+        + phase_in_rad 
+        + phase_in_degrees)
+        + fft frequency, 
+        + average frequency 
+        + rocof )
                                                                 
     Size: Channels*phasor
     '''
