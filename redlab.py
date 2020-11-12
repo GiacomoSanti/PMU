@@ -48,7 +48,7 @@ class Redlab:
            
     def set_num_channels(self, channels):
         '''
-        Set how many channels to scan. channels is a list.
+        Set how many channels to scan. Channels is a list.
         '''
         if isinstance(channels, int):
             if channels <= 0 or channels > 8:
@@ -72,7 +72,7 @@ class Redlab:
     def read(self):
         '''
         Returns: a dictionary containing the sampled data in three different formats:
-        raw_data, data and volts.
+        raw_data, data and volts. data = rawdata*slope + intercept. volts = volts(data)
         The size of the dictionary is nSamples*channels. 
         '''
         raw_data = self.device.AInScanRead(self.nSamples)

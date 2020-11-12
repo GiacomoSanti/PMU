@@ -23,7 +23,7 @@ def zero_crossing_indexes(samples):
 
 def zero_cross_offset(s1, s2, Ts):
     '''
-    Interpolates the two samples s1 & s2
+    Interpolates the two samples s1 & s2.
     '''
     offset_b = (s2*Ts/(s2-s1))
     offset_a = Ts - offset_b
@@ -48,7 +48,7 @@ def zero_crossing_times(samples, frequency, zero_indexes):
 
 def get_periods(zero_crossing_times):
     '''
-    Returns the list of periods found as the difference between two zero times
+    Returns the list of periods found as the difference between two consecutives zero times
     '''
     
     ps = []
@@ -80,7 +80,7 @@ def get_average_frequency(periods):
 def windowed_fft(samples, zero_crossing_indexes, s_freq, offset_a, offset_b, a_freq, nSamples):
     '''
     Calculates the DFT of the samples passed using FFT functions from numpy lib.
-    Returns the array of phasors, the array of the frequencies corrisponding to the phasors calculated, and the index of the fondamental.
+    Returns the array of phasors, the array of the frequencies corrisponding to the phasors calculated, and the index of the fondamental phasor.
     '''    
     Ts = 1/s_freq
     samples_per_period = int(s_freq/a_freq) # for best results s_freq and a_freq should be multiples
@@ -103,7 +103,7 @@ def windowed_fft(samples, zero_crossing_indexes, s_freq, offset_a, offset_b, a_f
 
 def estimate_phasors(scan):
     '''
-    Returns a dictionary containing al the channels' estimated fondamental phasor
+    Returns a dictionary containing all the channels' estimated fondamental phasors
 
         ( complex number 
         + amplitude 

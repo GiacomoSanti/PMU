@@ -50,6 +50,9 @@ class MyPmu:
 
 
     def run(self):
+        '''
+        Create TCP socket, bind port and listen for incoming connections
+        '''
 
         self.pmu.run()
         while True:
@@ -129,10 +132,10 @@ def make_callback(redlab, myPmu):
 
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     
-    r = Redlab([1,2,3], 10000, 1600)
-    myPmu = MyPmu(["VA","VB","VC"])
+    r = Redlab([1,2,3], 10000, 1600) #init redlab
+    myPmu = MyPmu(["VA","VB","VC"]) #ìnit pmu
 
     #GPIO lib is used to attach the 18th pin of the raspberry
     gpio.setmode(gpio.BCM)
@@ -141,4 +144,4 @@ if __name__ == "__main__":
     callback = make_callback(r, myPmu)
     gpio.add_event_callback(18, callback)
 
-    myPmu.run()
+    myPmu.run() #start
