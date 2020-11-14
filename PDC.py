@@ -30,8 +30,13 @@ while True:
     degrees = get_degrees(phasors)
 
 
-    print('Received: ', data.get_phasors(), '   ', degrees, '   ', datetime.fromtimestamp(data.get_soc()), '   ',  data.cfg.get_fnom() + data.get_freq() / 1000)
-    
+    print('Received: ', datetime.fromtimestamp(data.get_soc()))
+    print('Measurements', data.get_measurements())
+    sph = data.get_phasors()
+    print('RMS: ')
+    for p in sph:
+        print(p[0]/np.sqrt(2))
+        
     if not data:
         pdc.quit()  # Close connection
         break

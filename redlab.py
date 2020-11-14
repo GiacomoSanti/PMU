@@ -92,6 +92,8 @@ class Redlab:
             Cycles on the scans, and fills the dictionary.
             '''
             for i, chan in enumerate(self.channels):
+                
+                
                 ii = scan + i*self.nSamples
                 data[chan]['rawData'].append(raw_data[ii])
                 data[chan]['data'].append(raw_data[ii]*self.device.table_AIn[chan].slope + self.device.table_AIn[chan].intercept)

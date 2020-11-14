@@ -126,7 +126,13 @@ def make_callback(redlab, myPmu):
         scan['timestamp'] = round(T)
         sph = estimate_phasors(scan)
         myPmu.send(redlab, sph, scan['timestamp'])
-        print('Sent: ', myPmu.current_dataframe.get_phasors(), '   ', get_degrees(myPmu.current_dataframe.get_phasors()), '   ', datetime.fromtimestamp(round(T)), '   ', myPmu.cfg.get_fnom() + myPmu.current_dataframe.get_freq() / 1000)
+
+
+        print('Sent: ', datetime.fromtimestamp(round(T)), '   ', myPmu.current_dataframe.get_measurements())
+        sph = myPmu.current_dataframe.get_phasors()
+        print('RMS: ')
+        for p in sph:
+            print(p[0]/np.sqrt(2))
 
     return callback
 
