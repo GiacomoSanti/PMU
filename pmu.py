@@ -48,7 +48,6 @@ class MyPmu:
         self.pmu.set_configuration(self.cfg)
         self.pmu.set_header(self.hf)
 
-
     def run(self):
         '''
         Create TCP socket, bind port and listen for incoming connections
@@ -121,14 +120,15 @@ def make_callback(redlab, myPmu):
         T = time.time()
 
         scan = redlab.read()
-        #scan = fake_scan(int(T)%10+1)  #for testing with no input available
 
         scan['timestamp'] = round(T)
         sph = estimate_phasors(scan)
         myPmu.send(redlab, sph, scan['timestamp'])
 
+        pprint(sph)
 
-        print('Sent: ', datetime.fromtimestamp(round(T)), '   ', myPmu.current_dataframe.get_measurements())
+        print('Sent: ', datetime.fromtimestamp(round(T)))
+        pprint(myPmu.current_dataframe.get_measurements())
         sph = myPmu.current_dataframe.get_phasors()
         print('RMS: ')
         for p in sph:
@@ -140,8 +140,8 @@ def make_callback(redlab, myPmu):
 
 if __name__ == "__main__": 
     
-    r = Redlab([1,2,3], 10000, 1600) #init redlab
-    myPmu = MyPmu(["VA","VB","VC"]) #ìnit pmu
+    r = Redlab([1,2,3,4], 10000, 1600) #init redlab
+    myPmu = MyPmu(["VA","VB","VC","VD"]) #ìnit pmu
 
     #GPIO lib is used to attach the 18th pin of the raspberry
     gpio.setmode(gpio.BCM)

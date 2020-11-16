@@ -3,6 +3,7 @@ import math
 from random import random
 from pprint import pprint
 from redlab import *
+import RPi.GPIO as gpio
 
 def zero_crossing_indexes(samples):
     '''
@@ -217,8 +218,8 @@ def fake_scan(sFreq, samples, nFreq):
     return fake_scan
 
 
-if __name__ == "__main__":
-    redlab = Redlab(channels=[1,2,3])
+def main1():
+    redlab = Redlab(channels=[1,2])
     
     
     t = time.time()
@@ -227,3 +228,33 @@ if __name__ == "__main__":
     time.sleep(0.3)
 
     pprint(estimate_phasors(data))
+
+
+def make_callback(redlab):
+    def callback(arg):
+        data = redlab.read()
+        sph = estimate_phasors(data)
+
+        pprint(sph, depth=3)
+
+    
+    return callback
+
+def main2():
+    
+    r = Redlab([1,2], 10000, 2000) #init redlab
+
+    #GPIO lib is used to attach the 18th pin of the raspberry
+    gpio.setmode(gpio.BCM)
+    gpio.setup(18, gpio.IN, pull_up_down=gpio.PUD_DOWN)
+    gpio.add_event_detect(18, gpio.RISING)
+    callback = make_callback(r)
+    gpio.add_event_callback(18, callback)
+
+    while True:
+        pass
+
+
+if __name__ == "__main__":
+    main2()
+    

@@ -2,6 +2,10 @@ from usb_20x import *
 import numpy as np
 import math
 from random import random
+from pprint import pprint
+import RPi.GPIO as gpio
+import subprocess
+import os
 
 class Redlab:
     '''
@@ -12,15 +16,18 @@ class Redlab:
     STALL_ON_OVERRUN        = 0x0
     INHIBIT_STALL           = 0x1 << 7
     
-    def __init__(self, channels=1, frequency=10000, nSamples=1600, options=0b10000000, trigger = 1):
+    def __init__(self, channels=1, frequency=10000, nSamples=2000, options=0b10000000, trigger = 1):
         '''
         channels: number of channels or list of channels
-        frequency: sampling frequency
+        frequency: sampling frequency per channel
         nSamples: number of samples for channel to read
         trigger: if set to 1 synchronizes the measurements with the PPS given by the GPS module
         options: first bit sets the stall options. Many other options are available(see USB_20x)
         '''
-        if frequency < 1 or frequency > 12500:
+        self.reset()
+
+
+        if frequency < 1 or frequency > 12500*len(channels):
             raise ValueError("The frequency must be in range 1 < f <= 12500 ") #100Ks/s is the maximum, but has to be split by the 8 channels
 
         try:
@@ -29,9 +36,10 @@ class Redlab:
         except:
             print("USB-201 device not found.")
 
+
             
         self.nSamples = nSamples
-        self.frequency = frequency
+        self.frequency = len(channels)*frequency
         self.options = options
         self.trigger = trigger
 
@@ -42,10 +50,16 @@ class Redlab:
         '''
         Setup the RedLab Continuous Analog Input Scan. Uses methods from the lib.
         '''
-        self.device.AInScanStop()
-        self.device.AInScanClearFIFO()
+        if self.device.Status() == 2:
+            self.device.AInScanStop()
+            self.device.AInScanClearFIFO()
         self.device.AInScanStart(self.nSamples, self.frequency, self.channel_mask, self.options, self.trigger, 0)
-           
+    
+    def reset(self, t=5):
+        path = os.path.dirname(os.path.realpath(__file__)) + '/reset'
+        subprocess.run(path)
+        time.sleep(t)
+
     def set_num_channels(self, channels):
         '''
         Set how many channels to scan. Channels is a list.
@@ -94,7 +108,7 @@ class Redlab:
             for i, chan in enumerate(self.channels):
                 
                 
-                ii = scan + i*self.nSamples
+                ii = scan*len(self.channels) + i
                 data[chan]['rawData'].append(raw_data[ii])
                 data[chan]['data'].append(raw_data[ii]*self.device.table_AIn[chan].slope + self.device.table_AIn[chan].intercept)
 
@@ -104,17 +118,52 @@ class Redlab:
 
 
         self.setup_scan()
-        return { 'channels': data, 'frequency': self.frequency, 'samples': self.nSamples}
+        return { 'channels': data, 'frequency': self.frequency/len(self.channels), 'samples': self.nSamples}
 
+
+def main1():
+    from pprint import pprint
+    redlab = Redlab(channels=[1,2,3,4])
+    time.sleep(1)
+    data = redlab.read()
+    
+    pprint(data, depth=3)
+    for i in range(110):
+        print(i, data['channels'][1]['volts'][i],
+                data['channels'][2]['volts'][i],
+                data['channels'][3]['volts'][i],
+                data['channels'][4]['volts'][i]
+                )
+    pass
+
+
+def make_callback(redlab):
+    def callback(arg):
+        data = redlab.read()
+        pprint(data, depth=3)
+        for i in range(110):
+            s = str(i)
+            for c in data['channels']:
+                s += '\t {}'.format(data['channels'][c]['volts'][i])
+            print(s)
+    
+    return callback
+
+def main2():
+    
+    r = Redlab([1,2], 10000, 2000) #init redlab
+
+    #GPIO lib is used to attach the 18th pin of the raspberry
+    gpio.setmode(gpio.BCM)
+    gpio.setup(18, gpio.IN, pull_up_down=gpio.PUD_DOWN)
+    gpio.add_event_detect(18, gpio.RISING)
+    callback = make_callback(r)
+    gpio.add_event_callback(18, callback)
+
+    while True:
+        pass
 
 
 if __name__ == "__main__":
-    from pprint import pprint
-    redlab = Redlab(channels=[1,2,3])
-    time.sleep(1)
-    data = redlab.read()
-    pprint(data, depth=3)
-    #pprint(data['channels'][1]['volts'][:110])
-    #pprint(data['channels'][2]['volts'][:110])
-    #pprint(data['channels'][3]['volts'][:110])
-    pass
+    main2()
+    
