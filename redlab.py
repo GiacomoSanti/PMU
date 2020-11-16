@@ -77,7 +77,8 @@ class Redlab:
         else:
             raise ValueError("Channels must be an int or a list")
 
-                    
+        self.channels.sort()
+
         self.channel_mask = 0   #sets the mask for the channels. es. channel 1,2,3 -> 01110000
         for i in self.channels:
             self.channel_mask |= (0x1 << i)
