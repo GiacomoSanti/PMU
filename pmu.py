@@ -76,7 +76,7 @@ class MyPmu:
                 rocof.append(0)
             else:
                 rocof.append(synchrophasors[chan]['rocof']) #1 rocof for the whole datagram, the first is given
-                freq_dev.append(abs(self.nFreq-synchrophasors[chan]['avg_freq']))# average frequency deviation from nominal
+                freq_dev.append(synchrophasors[chan]['avg_freq']-self.nFreq)# average frequency deviation from nominal
        
         if len(freq_dev) == 0:
             freq_dev.append(0)
