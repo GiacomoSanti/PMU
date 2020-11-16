@@ -127,8 +127,9 @@ def estimate_phasors(scan):
         zc_indexes = zero_crossing_indexes(samples['volts']) #Step 1: indexes
 
         if len(zc_indexes) < 2:
-            print('Not enough zero crossings found in channel ', chan)
-            result[chan] = {    #Step 6: Dictionary filling
+            # Not enough zero crossings found
+
+            result[chan] = {  
                 'rocof': 0,
                 'avg_freq': 0,
                 'amplitude': 0,

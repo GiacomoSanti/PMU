@@ -31,11 +31,14 @@ while True:
 
 
     print('Received: ', datetime.fromtimestamp(data.get_soc()))
-    print('Measurements', data.get_measurements())
     sph = data.get_phasors()
-    print('RMS: ')
+    print('Phasors: ')
     for p in sph:
-        print(p[0]/np.sqrt(2))
+        print('RMS: ',p[0]/np.sqrt(2), ', <: ',p[1])
+    meas = data.get_measurements()
+
+    print('Frequency: ', meas['measurements'][0]['frequency'])
+    print('Rocof: ', meas['measurements'][0]['rocof'])
         
     if not data:
         pdc.quit()  # Close connection

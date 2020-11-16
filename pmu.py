@@ -127,6 +127,7 @@ def make_callback(redlab, myPmu):
             3- estimates synchrophasors
             4- sends the data Frame to the PDC if connected 
         '''
+        time.sleep(0.1)
         T = time.time()
 
         scan = redlab.read()
@@ -134,15 +135,16 @@ def make_callback(redlab, myPmu):
         scan['timestamp'] = round(T)
         sph = estimate_phasors(scan)
         myPmu.send(redlab, sph, scan['timestamp'])
-
-        pprint(sph)
-
+        data = myPmu.current_dataframe
         print('Sent: ', datetime.fromtimestamp(round(T)))
-        pprint(myPmu.current_dataframe.get_measurements())
         sph = myPmu.current_dataframe.get_phasors()
-        print('RMS: ')
         for p in sph:
-            print(p[0]/np.sqrt(2))
+            print('RMS: ',p[0]/np.sqrt(2), ', <: ',p[1])
+        meas = data.get_measurements()
+
+        print('Frequency: ', meas['measurements'][0]['frequency'])
+        print('Rocof: ', meas['measurements'][0]['rocof'])
+        print()
 
     return callback
 

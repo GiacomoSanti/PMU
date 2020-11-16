@@ -33,6 +33,7 @@ class Redlab:
         try:
             self.device = usb_201() #Add control on the model here for future changes in the architecture.
             print("USB-201 device found.")
+
         except:
             print("USB-201 device not found.")
 
@@ -90,6 +91,7 @@ class Redlab:
         raw_data, data and volts. data = rawdata*slope + intercept. volts = volts(data)
         The size of the dictionary is nSamples*channels. 
         '''
+
         raw_data = self.device.AInScanRead(self.nSamples)
 
         data = {}
@@ -100,6 +102,19 @@ class Redlab:
                 'volts': [],
                 'data': []
             }
+            
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         for scan in range(self.nSamples):
@@ -108,8 +123,8 @@ class Redlab:
             '''
             for i, chan in enumerate(self.channels):
                 
-                
                 ii = scan*len(self.channels) + i
+                
                 data[chan]['rawData'].append(raw_data[ii])
                 data[chan]['data'].append(raw_data[ii]*self.device.table_AIn[chan].slope + self.device.table_AIn[chan].intercept)
 
@@ -126,6 +141,7 @@ def main1():
     from pprint import pprint
     redlab = Redlab(channels=[1,2,3,4])
     time.sleep(1)
+    #data = redlab.read()
     data = redlab.read()
     
     pprint(data, depth=3)
@@ -167,4 +183,3 @@ def main2():
 
 if __name__ == "__main__":
     main2()
-    
