@@ -152,8 +152,8 @@ def make_callback(redlab, myPmu):
 
 if __name__ == "__main__": 
     
-    r = Redlab([1,2,3,4], 10000, 1600) #init redlab
-    myPmu = MyPmu(["VA","VB","VC","VD"]) #ìnit pmu
+    r = Redlab([0,1,2,3,4,5,6,7],nSamples=2400) #init redlab
+    myPmu = MyPmu(["VA","VB","VC","VD","VE","VF","VG","VH"]) #ìnit pmu
 
     #GPIO lib is used to attach the 18th pin of the raspberry
     gpio.setmode(gpio.BCM)

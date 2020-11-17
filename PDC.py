@@ -32,9 +32,9 @@ while True:
 
     print('Received: ', datetime.fromtimestamp(data.get_soc()))
     sph = data.get_phasors()
-    print('Phasors: ')
+    print(degrees)
     for p in sph:
-        print('RMS: ',p[0]/np.sqrt(2), ', <: ',p[1])
+        print('RMS: ',p[0]/np.sqrt(2), ', <: ',p[1], '\t(',p[0],')' )
     meas = data.get_measurements()
 
     print('Frequency: ', meas['measurements'][0]['frequency'])
